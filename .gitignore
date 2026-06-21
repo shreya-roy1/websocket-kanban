@@ -1,0 +1,33 @@
+# Dependency directories
+node_modules/
+
+# Build outputs
+dist/
+build/
+.svelte-kit/
+.next/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing/Reports
+playwright-report/
+test-results/
+.playwright/
+coverage/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

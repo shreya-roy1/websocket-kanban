@@ -1,0 +1,14 @@
+{
+  "name": "websocket-kanban-starter-root",
+  "version": "1.0.0",
+  "description": "Root runner for Kanban project",
+  "scripts": {
+    "install:all": "npm install --prefix websocket-kanban-vitest-playwright-2026-main/backend && npm install --prefix websocket-kanban-vitest-playwright-2026-main/frontend",
+    "dev": "concurrently \"npm run dev --prefix websocket-kanban-vitest-playwright-2026-main/backend\" \"npm run dev --prefix websocket-kanban-vitest-playwright-2026-main/frontend\"",
+    "test": "npm run test --prefix websocket-kanban-vitest-playwright-2026-main/frontend",
+    "test:e2e": "npm run test:e2e --prefix websocket-kanban-vitest-playwright-2026-main/frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
