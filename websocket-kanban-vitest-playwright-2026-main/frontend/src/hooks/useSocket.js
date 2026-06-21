@@ -8,7 +8,8 @@ export function useSocket() {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const socket = io("http://localhost:3001");
+    const wsUrl = import.meta.env.VITE_WS_URL || "http://localhost:3001";
+    const socket = io(wsUrl);
     socketRef.current = socket;
 
     socket.on("connect", () => {
