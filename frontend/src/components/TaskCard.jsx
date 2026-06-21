@@ -1,6 +1,17 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Edit2, Trash2, Paperclip, Calendar } from "lucide-react";
 
+/**
+ * TaskCard component - Displays a single task card inside a column with details like
+ * title, description, attachments, priority, category, and action buttons.
+ *
+ * @component
+ * @param {Object} props
+ * @param {import('../hooks/useSocket').Task} props.task - The task details to render
+ * @param {function(import('../hooks/useSocket').Task): void} props.onEdit - Callback invoked when editing the task
+ * @param {function(string): void} props.onDelete - Callback invoked when deleting the task
+ */
 function TaskCard({ task, onEdit, onDelete }) {
   const handleDragStart = (e) => {
     e.dataTransfer.setData("text/plain", task.id);
@@ -40,7 +51,7 @@ function TaskCard({ task, onEdit, onDelete }) {
     <div
       draggable
       onDragStart={handleDragStart}
-      className="glass-panel p-4 mb-4 rounded-xl shadow-md cursor-grab active:cursor-grabbing hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500"
+      className="glass-panel bg-slate-900/60 backdrop-blur-md p-4 mb-3 rounded-xl hover:bg-slate-900/80 hover:border-slate-700/50 transition-all duration-200 border border-slate-800/40 border-l-2 border-l-blue-500 cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md"
       data-testid={`task-card-${task.id}`}
     >
       <div className="flex justify-between items-start gap-2 mb-2">
@@ -51,14 +62,14 @@ function TaskCard({ task, onEdit, onDelete }) {
           <button
             onClick={() => onEdit(task)}
             className="p-1.5 text-slate-400 hover:text-blue-400 rounded-lg hover:bg-slate-800 transition"
-            aria-label="Edit Task"
+            aria-label={`Edit task: ${task.title}`}
           >
             <Edit2 size={14} />
           </button>
           <button
             onClick={() => onDelete(task.id)}
             className="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-800 transition"
-            aria-label="Delete Task"
+            aria-label={`Delete task: ${task.title}`}
           >
             <Trash2 size={14} />
           </button>
@@ -80,7 +91,7 @@ function TaskCard({ task, onEdit, onDelete }) {
             {task.attachments.map((file, idx) => (
               <div
                 key={idx}
-                className="relative group border border-slate-700 rounded-lg overflow-hidden bg-slate-900/50 aspect-video flex flex-col items-center justify-center p-1"
+                className="relative group border border-slate-800/60 rounded-lg overflow-hidden bg-slate-950/40 aspect-video flex flex-col items-center justify-center p-1"
               >
                 {file.type && file.type.startsWith("image/") ? (
                   <img
@@ -104,7 +115,7 @@ function TaskCard({ task, onEdit, onDelete }) {
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-3 border-t border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-3 border-t border-slate-800/40">
         <div className="flex flex-wrap gap-1.5">
           <span className={`px-2 py-0.5 rounded-full font-medium ${getPriorityColor(task.priority)}`}>
             {task.priority || "Low"}
@@ -122,4 +133,26 @@ function TaskCard({ task, onEdit, onDelete }) {
   );
 }
 
+TaskCard.propTypes = {
+  task: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    status: PropTypes.oneOf(["todo", "in_progress", "done"]).isRequired,
+    priority: PropTypes.oneOf(["Low", "Medium", "High"]).isRequired,
+    category: PropTypes.oneOf(["Bug", "Feature", "Enhancement"]).isRequired,
+    createdAt: PropTypes.string.isRequired,
+    attachments: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        type: PropTypes.string,
+        url: PropTypes.string.isRequired
+      })
+    )
+  }).isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired
+};
+
 export default TaskCard;
+

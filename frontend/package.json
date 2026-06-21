@@ -17,6 +17,7 @@
     "autoprefixer": "^10.5.0",
     "lucide-react": "^1.21.0",
     "postcss": "^8.5.15",
+    "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-select": "^5.10.2",

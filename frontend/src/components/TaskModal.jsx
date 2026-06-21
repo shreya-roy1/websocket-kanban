@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 import Select from "react-select";
 import { X, Upload, FileText, Image as ImageIcon } from "lucide-react";
 
@@ -53,6 +54,17 @@ const selectStyles = {
   })
 };
 
+/**
+ * TaskModal component - Accessible form modal used to create or edit a task.
+ * Supports Escape key close, optimistic local state submission, input validation, and keyboard focus management.
+ *
+ * @component
+ * @param {Object} props
+ * @param {import('../hooks/useSocket').Task|null} props.task - The task to edit, or null if creating a new task
+ * @param {boolean} props.isOpen - Controlling visibility state
+ * @param {function(): void} props.onClose - Callback triggered to close the modal
+ * @param {function(Omit<import('../hooks/useSocket').Task, 'createdAt'|'status'> & {id?: string, createdAt?: string, status?: string}): void} props.onSave - Callback triggered when saving
+ */
 function TaskModal({ task, isOpen, onClose, onSave }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -60,8 +72,11 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
   const [category, setCategory] = useState(categoryOptions[2]);
   const [attachments, setAttachments] = useState([]);
   const [error, setError] = useState("");
+  
   const fileInputRef = useRef(null);
+  const titleInputRef = useRef(null);
 
+  // Sync state values when modal task prop or open status changes
   useEffect(() => {
     if (task) {
       setTitle(task.title || "");
@@ -78,6 +93,27 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
     }
     setError("");
   }, [task, isOpen]);
+
+  // Accessibility: Focus first input element when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        titleInputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  // Accessibility: Close modal on Escape key down
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -129,18 +165,24 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
-      <div className="glass-panel w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-fade-in flex flex-col max-h-[90vh]">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-md p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div className="glass-panel bg-slate-950/80 backdrop-blur-lg w-full max-w-lg rounded-2xl border border-slate-800/40 overflow-hidden animate-fade-in flex flex-col max-h-[90vh] shadow-2xl">
         
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 border-b border-slate-800">
-          <h3 className="text-lg font-bold text-slate-100">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-slate-800/40">
+          <h3 id="modal-title" className="text-lg font-bold text-slate-100">
             {task ? "Edit Task" : "Create New Task"}
           </h3>
           <button
+            type="button"
             onClick={onClose}
             className="p-1 text-slate-400 hover:text-slate-200 rounded-lg hover:bg-slate-800 transition"
-            aria-label="Close"
+            aria-label="Close modal"
           >
             <X size={20} />
           </button>
@@ -166,11 +208,13 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
               id="task-title"
               type="text"
               required
+              ref={titleInputRef}
               placeholder="e.g. Implement WebSockets"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full bg-slate-800 text-slate-100 rounded-xl px-4 py-2.5 border border-slate-700 focus:outline-none focus:border-blue-500 transition"
               data-testid="task-title-input"
+              aria-required="true"
             />
           </div>
 
@@ -196,6 +240,7 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
               </label>
               <Select
                 id="priority-select"
+                inputId="priority-select"
                 options={priorityOptions}
                 value={priority}
                 onChange={setPriority}
@@ -208,6 +253,7 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
               </label>
               <Select
                 id="category-select"
+                inputId="category-select"
                 options={categoryOptions}
                 value={category}
                 onChange={setCategory}
@@ -217,9 +263,9 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+            <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
               Attachments
-            </label>
+            </span>
             <div className="flex gap-2">
               <input
                 type="file"
@@ -235,6 +281,7 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-2 px-4 py-2.5 border border-slate-700 bg-slate-800 hover:bg-slate-750 text-slate-200 rounded-xl hover:text-white transition w-full justify-center font-medium cursor-pointer"
                 data-testid="file-upload-button"
+                aria-label="Upload PDF or image attachments"
               >
                 <Upload size={16} />
                 <span>Upload Files</span>
@@ -251,8 +298,8 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
                     <button
                       type="button"
                       onClick={() => removeAttachment(idx)}
-                      className="absolute top-1.5 right-1.5 bg-slate-950/80 hover:bg-rose-600/90 text-white rounded-full p-1 transition opacity-0 group-hover:opacity-100"
-                      aria-label="Remove Attachment"
+                      className="absolute top-1.5 right-1.5 bg-slate-950/80 hover:bg-rose-600/90 text-white rounded-full p-1 transition opacity-0 group-hover:opacity-100 z-10"
+                      aria-label={`Remove attachment: ${file.name}`}
                     >
                       <X size={12} />
                     </button>
@@ -285,7 +332,7 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
           </div>
 
           {/* Footer Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800/40">
             <button
               type="button"
               onClick={onClose}
@@ -295,7 +342,7 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all duration-200"
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/10 transition-all duration-200"
               data-testid="save-task-button"
             >
               {task ? "Save Changes" : "Create Task"}
@@ -308,4 +355,27 @@ function TaskModal({ task, isOpen, onClose, onSave }) {
   );
 }
 
+TaskModal.propTypes = {
+  task: PropTypes.shape({
+    id: PropTypes.string,
+    title: PropTypes.string,
+    description: PropTypes.string,
+    status: PropTypes.oneOf(["todo", "in_progress", "done"]),
+    priority: PropTypes.oneOf(["Low", "Medium", "High"]),
+    category: PropTypes.oneOf(["Bug", "Feature", "Enhancement"]),
+    createdAt: PropTypes.string,
+    attachments: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        type: PropTypes.string,
+        url: PropTypes.string.isRequired
+      })
+    )
+  }),
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired
+};
+
 export default TaskModal;
+

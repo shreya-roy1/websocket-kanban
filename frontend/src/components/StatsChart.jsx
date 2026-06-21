@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {
   BarChart,
   Bar,
@@ -11,6 +12,15 @@ import {
   Pie
 } from "recharts";
 
+/**
+ * StatsChart component - Displays visual analytics of the Kanban board,
+ * including completion gauge (pie chart) and task status distribution (bar chart).
+ * Uses solid, high-contrast colors and a clean, flat aesthetic.
+ *
+ * @component
+ * @param {Object} props
+ * @param {import('../hooks/useSocket').Task[]} props.tasks - The array of tasks to analyze
+ */
 function StatsChart({ tasks }) {
   const todoCount = tasks.filter((t) => t.status === "todo").length;
   const inProgressCount = tasks.filter((t) => t.status === "in_progress").length;
@@ -36,10 +46,10 @@ function StatsChart({ tasks }) {
     : pieData;
 
   return (
-    <div className="glass-panel p-6 rounded-2xl shadow-xl border border-slate-800" data-testid="stats-chart-container">
+    <div className="glass-panel p-6 rounded-2xl border border-slate-800/40" data-testid="stats-chart-container">
       <h3 className="text-base font-bold text-slate-200 mb-6 flex justify-between items-center">
         <span>Analytics Dashboard</span>
-        <span className="text-xs font-medium bg-slate-800 text-slate-400 px-2 py-0.5 rounded-lg">
+        <span className="text-xs font-medium bg-slate-800/50 text-slate-400 px-2 py-0.5 rounded-lg">
           Total: {totalCount}
         </span>
       </h3>
@@ -129,4 +139,26 @@ function StatsChart({ tasks }) {
   );
 }
 
+StatsChart.propTypes = {
+  tasks: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      description: PropTypes.string,
+      status: PropTypes.oneOf(["todo", "in_progress", "done"]).isRequired,
+      priority: PropTypes.oneOf(["Low", "Medium", "High"]).isRequired,
+      category: PropTypes.oneOf(["Bug", "Feature", "Enhancement"]).isRequired,
+      createdAt: PropTypes.string.isRequired,
+      attachments: PropTypes.arrayOf(
+        PropTypes.shape({
+          name: PropTypes.string.isRequired,
+          type: PropTypes.string,
+          url: PropTypes.string.isRequired
+        })
+      )
+    })
+  ).isRequired
+};
+
 export default StatsChart;
+
