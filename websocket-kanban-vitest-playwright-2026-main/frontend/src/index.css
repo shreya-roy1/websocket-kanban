@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: #0f172a; /* Slate-900 */
+  color: #f1f5f9; /* Slate-100 */
+  overflow-x: hidden;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* Custom drag & drop styles */
+.drag-over {
+  border-color: #3b82f6 !important;
+  background-color: rgba(59, 130, 246, 0.05) !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
