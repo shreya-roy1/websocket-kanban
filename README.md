@@ -49,9 +49,6 @@ From the root workspace directory, run:
 ```bash
 npm run dev
 ```
-This single command concurrently starts:
-*   The **Backend Server** on [http://localhost:3001](http://localhost:3001)
-*   The **Frontend App** on [http://localhost:3000](http://localhost:3000)
 
 ---
 
