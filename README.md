@@ -81,3 +81,5 @@ npm run test:e2e
 1.  **HTML5 Drag & Drop**: Standardized, zero-dependency browser API utilized to ensure React 19 compatibility and maximum package efficiency.
 2.  **CSS-First Configuration**: Built on Tailwind CSS v4 to utilize fast compiling and styling within `index.css`.
 3.  **In-Memory Store**: Managed as a centralized tasks array in `server.js` allowing immediate local evaluation by developers without needing database setups.
+
+---
